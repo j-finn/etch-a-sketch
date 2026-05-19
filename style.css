@@ -1,0 +1,42 @@
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+button {
+    box-sizing: border-box;
+    align-self: flex-start;
+    border-radius: 8px;
+    color: white;
+    min-height: 50px;
+    min-width: 150px;
+    margin: 10px;
+}
+
+#set-grid-size-button {
+    background-color: indianred;
+}
+
+#reset-grid-button {
+    background-color: mediumspringgreen;
+}
+
+#eraser-button {
+    background-color: midnightblue;
+}
+
+
+#grid-container {
+    display: flex;
+    flex-wrap: wrap;
+    width: 600px;
+    margin: auto;
+    padding-bottom: 50px;
+}
+
+#grid-container > div {
+    flex: 0 1 var(--item-width, 50%);  /* Use the variable */
+    aspect-ratio: 1;  /* Maintains square proportions */
+    box-shadow: inset 0 0 0 0.5px black;
+}
