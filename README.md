@@ -1,6 +1,6 @@
 A basic etch-a-sketch created using vanilla Javascript.
 
-<img width="1665" height="826" alt="image" src="https://github.com/user-attachments/assets/eef74b26-24ee-445c-9759-88799742bcc2" />
+<img width="1665" height="826" alt="image" src="https://github.com/user-attachments/assets/eef74b26-24ee-445c-9759-88799742bcc2" style="border: 2px solid black;"/>
 
 <h2>Features:</h2>
 <ul>
