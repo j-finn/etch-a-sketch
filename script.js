@@ -1,7 +1,6 @@
-let DEFAULT_GRID_SIZE = 16
-let currentGridSize = DEFAULT_GRID_SIZE;
-let isMouseDown = false;
 let isEraserModeActive = false;
+let currentTool;
+let currentColour;
 
 
 // Fire init method once DOM content loaded
@@ -12,124 +11,131 @@ document.addEventListener('DOMContentLoaded', init)
  * Initialise the grid and listeners used for detecting user's mouse input.
  */
 function init() {
-    create(DEFAULT_GRID_SIZE); // create default 16x16 grid on initial load
-
-    const container = document.getElementById("grid-container");
-
-    container.addEventListener("mousedown", (event) => {
-        if (event.button === 0 && event.target !== container) {
-            isMouseDown = true;
-            fillDiv(event.target);
-        }
-    });
-
-    container.addEventListener("mouseover", (event) => {
-        if (isMouseDown && event.target !== container) {
-            fillDiv(event.target);
-        }
-    });
-
-    document.addEventListener("mouseup", (event) => {
-        if (event.button === 0) {
-            isMouseDown = false;
-        }
-    });
+    initialiseCanvas();
+    initialiseTools();
 }
 
-
 /**
- * Clears all the child div elements in the grid-container to create a blank slate.
+ * The canvas size defaults to 300px x 150px which determines the number of pixels in the drawing surface.
  *
- * Then prompts the user to input a grid size.
- */
-function setGridSize() {
-    document.getElementById("grid-container").replaceChildren();
-
-    let isValid = false;
-
-    while (!isValid) {
-        currentGridSize = prompt("Please enter desired square grid size:");
-
-        if (isNaN(currentGridSize) || currentGridSize.trim() === "") {
-            alert("Please enter a valid integer between 1 and 100 inclusive");
-            continue;
-        }
-
-        currentGridSize = parseInt(currentGridSize);
-
-        // Check if it's positive and within reasonable bounds
-        if (currentGridSize < 1) {
-            alert("Grid size must be at least 1");
-            continue;
-        }
-
-        if (currentGridSize > 100) {
-            alert("Grid size cannot exceed 100");
-            continue;
-        }
-
-        isValid = true;
-    }
-
-    create(currentGridSize);
-}
-
-
-/**
- * Redraw the previous grid resetting the users drawing.
- */
-function redrawPreviousGrid() {
-    document.getElementById("grid-container").replaceChildren();
-    create(currentGridSize);
-}
-
-
-/**
- * Responsible for filling or removing the fill from the specified div depending
- * on whether eraser mode is active or not.
+ * CSS is used to dynamically size the appearance of the canvas on the page.
  *
- * @param div whose background colour will be filled
+ * This creates a mismatch that needs to be realigned.
+ *
+ * @param canvas element to be resized.
  */
-function fillDiv(div) {
-    if (isEraserModeActive) {
-        div.style.backgroundColor = "";
-    } else {
-        div.style.backgroundColor = "cyan";
-    }
+function resizeCanvas(canvas) {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+}
+
+function initialiseCanvas() {
+    const canvas = document.getElementById('canvas');
+    resizeCanvas(canvas);
+
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    canvas.addEventListener('mousedown', (e) => {
+        isDrawing = true;
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+
+        if (currentTool.supportsColor) {
+            currentTool.colour = getCurrentColour();
+        }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (!isDrawing) {
+            return;
+        }
+
+        const {offsetX, offsetY} = e;
+        // Draw line FROM last position TO current position
+        currentTool.draw(ctx, lastX, lastY, offsetX, offsetY);
+        [lastX, lastY] = [offsetX, offsetY];
+    });
+
+    canvas.addEventListener('mouseup', e => {
+        isDrawing = false;
+
+        // draw a dot if user has clicked without moving mouse
+        if (lastX === e.offsetX && lastY === e.offsetY) {
+            currentTool.draw(ctx, lastX, lastY, lastX, lastY);
+        }
+    });
+
+
+    window.addEventListener('resize', () => {
+        const imageUrl = canvas.toDataURL();
+
+        resizeCanvas(canvas);
+
+        const img = new Image();
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+
+        img.src = imageUrl;
+    });
 }
 
 
-/**
- * Create a square div grid of size n x n (where squareGridSize = n)
- * @param squareGridSize
- */
-function create(squareGridSize) {
-    const container = document.getElementById("grid-container");
-    const itemWidth = (100 / squareGridSize) + "%";
+function initialiseTools() {
+    currentTool = tools['pen'];
 
-    // Set CSS variable on container
-    container.style.setProperty("--item-width", itemWidth);
+    document.getElementById('pen-button').addEventListener('click', () => {
+        setCurrentTool('pen');
+    });
 
-    for (let i = 1; i <= squareGridSize; i++) {
-        for (let j = 1; j <= squareGridSize; j++) {
-            const div = document.createElement("div");
-            container.appendChild(div);
+    document.getElementById('eraser-button').addEventListener('click', () => {
+        setCurrentTool('eraser');
+    });
+
+
+    document.getElementById('trash-button').addEventListener('click', () => {
+        if (confirm("Would you like to clear the canvas?")) {
+            canvas.width = canvas.width; // shortcut to clear canvas
+        }
+    })
+}
+
+
+function getCurrentColour() {
+    return document.getElementById('color-picker').value;
+}
+
+const tools = {
+    pen: {
+        name: 'pen',
+        cursor: `url('pen-icon.png') 0 24, auto`,
+        colour: "#000",
+        supportsColor: true,
+
+        draw(ctx, x, y, prevX, prevY) {
+            ctx.strokeStyle = this.colour;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(prevX, prevY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        }
+    },
+    eraser: {
+        name: 'eraser',
+        cursor: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"><rect width="15" height="15" fill="white" stroke="black" stroke-width="1"/></svg>') 0 0, auto`,
+        supportsColor: false,
+
+        draw(ctx, x, y, prevX, prevY) {
+            ctx.clearRect(x, y, 15, 15);
         }
     }
-}
+};
 
 
-/**
- * Responsible for toggling between draw and erase mode. Erase mode will set the mouse cursor to a bomb icon.
- */
-function toggleDrawMode() {
-    isEraserModeActive = !isEraserModeActive;
-
-    if (isEraserModeActive) {
-        document.getElementById("grid-container").style.cursor = "url('bomb-icon.png'), auto";
-    } else {
-        document.getElementById("grid-container").style.cursor = "auto";
-    }
-
-    document.getElementById("eraser-button").textContent = isEraserModeActive ? "Eraser Mode Active" : "Draw Mode Active";
+function setCurrentTool(toolName) {
+    currentTool = tools[toolName];
+    document.getElementById('canvas').style.cursor = currentTool.cursor;
 }

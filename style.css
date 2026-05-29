@@ -1,47 +1,125 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* includes padding/border in height calculation */
+}
+
 body {
     display: flex;
-    justify-content: space-evenly;
+    flex-direction: row;
+    justify-content: flex-end;
     height: 100vh;
+}
+
+#canvas-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    background-color: #bdf2f8;
+}
+
+canvas {
+    width: 90%;
+    height: 90%;
+    border: 1px solid black;
+    background-color: white;
+}
+
+#menu-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20%; /*of the canvas width*/
+    outline: 2px solid black;
+    background-color: #e8e8df;
+}
+
+#tools-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 70%;
+    /*height: 90%;/*/
+    outline: 2px solid black;
+    background-color: #bdf2f8;
+    padding: 20px;
+}
+
+#tools-container > button, input {
+    outline: 2px solid black;
+    background-color: #bdf2f8;
+    width: 40px;
+    height: 40px;
+    border-radius: 0;
+}
+
+#tools-container > button:hover {
+    background-color: #a0d8e8;
+}
+
+#tools-container > button:active {
+    transform: scale(0.95);
+    background-color: #7fbfd0;
+}
+
+#tools-container > button:focus  {
+    transform: scale(0.95);
+    background-color: #d07f7f;
 }
 
 #buttons {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-self: center;
     margin: 0;
 }
 
-button {
-    box-sizing: border-box;
-    border-radius: 8px;
-    color: white;
-    min-height: 50px;
-    min-width: 150px;
-    margin: 10px;
-}
+/*button {*/
+/*    box-sizing: border-box;*/
+/*    border-radius: 8px;*/
+/*    color: white;*/
+/*    min-height: 50px;*/
+/*    min-width: 150px;*/
+/*    margin: 10px;*/
+/*}*/
 
-#set-grid-size-button {
-    background-color: indianred;
-}
+/*#set-grid-size-button {*/
+/*    background-color: indianred;*/
+/*}*/
 
-#reset-grid-button {
-    background-color: mediumspringgreen;
-}
+/*#reset-grid-button {*/
+/*    background-color: mediumspringgreen;*/
+/*}*/
 
-#eraser-button {
-    background-color: midnightblue;
-}
+/*#eraser-button {*/
+/*    background-color: midnightblue;*/
+/*}*/
 
 #grid-container {
     display: flex;
     flex-wrap: wrap;
     width: 600px;
-    /*margin: auto;*/
     padding: 50px;
+    box-shadow: inset 0 0 0 1px black;
+}
+
+#grid-size-slider-container label {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+}
+
+#grid-size-labels {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+#grid-value {
+    min-width: 3ch;
 }
 
 #grid-container > div {
-    flex: 0 1 var(--item-width, 50%);  /* Use the variable */
-    aspect-ratio: 1;  /* Maintains square proportions */
-    box-shadow: inset 0 0 0 0.5px black;
+    flex: 0 1 var(--item-width, 50%); /* Use the variable */
+    aspect-ratio: 1; /* Maintains square proportions */
 }

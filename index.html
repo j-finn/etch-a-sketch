@@ -2,17 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Etch-a-Sketch</title>
+    <title>Paint</title>
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
 </head>
 <body>
-    <div id="buttons">
-        <button id="set-grid-size-button" onclick="setGridSize()">Set Grid Size</button>
-        <button id="reset-grid-button" onclick="redrawPreviousGrid()">Reset Grid</button>
-        <button id="eraser-button" onClick="toggleDrawMode()">Draw Mode Active</button>
+<div id="menu-container">
+    <div id="tools-container">
+        <button id="pen-button"><img src="pen-icon.png" alt="Pen"></button>
+        <button id="eraser-button"><img src="eraser-icon.png" alt="Eraser"></button>
+<!--        <button id="paint-fill-button"><img src="paint-bucket-icon.png" alt="Paint Fill"></button>-->
+        <label for="color-picker"><input type="color" id="color-picker" value="#000000"></label>
+        <button id="trash-button"><img src="trash-icon.png" alt="Trash"></button>
     </div>
+</div>
 
-    <div id="grid-container"></div>
+<div id="canvas-container">
+    <canvas id="canvas"></canvas>
+</div>
 </body>
 </html>
